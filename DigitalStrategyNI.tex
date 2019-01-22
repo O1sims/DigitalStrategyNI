@@ -1,0 +1,176 @@
+\documentclass[11pt,fleqn]{book}
+
+\usepackage{shorttoc}
+\usepackage{makeidx,natbib,vmargin,setspace}
+\usepackage{tabu}
+\usepackage{color}
+\usepackage{framed}
+\usepackage{amsfonts}
+\usepackage{amssymb, amsthm}
+\usepackage[T1]{fontenc}
+\usepackage[colorlinks=true, pdfstartview=FitV, citecolor=blue!50!black, linkcolor=red!30!black]{hyperref}
+\usepackage{graphicx,graphics,tikz}
+\usepackage{microtype}
+\usepackage{eqnarray}
+\usepackage{rotating}
+\usepackage{booktabs}
+\usepackage{setspace}
+\usepackage{dcolumn}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{thmtools}
+\usepackage[section]{placeins}
+
+\restylefloat{table}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+\fancyhf{}
+\fancyhead[LE,RO]{\bfseries\thepage}
+\fancyhead[LO]{\bfseries\rightmark}
+\fancyhead[RE]{\bfseries\leftmark}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0pt}
+\addtolength{\headheight}{0.5pt}
+\setlength{\footskip}{0in}
+\renewcommand{\footruleskip}{0pt}
+\fancypagestyle{plain}{%
+\fancyhead{}
+\renewcommand{\headrulewidth}{0pt}
+}
+\parskip 0.05in
+
+\usepackage{appendix}
+\usepackage{chngcntr}
+\usepackage{etoolbox}
+
+\AtBeginEnvironment{subappendices}{%
+\chapter*{Appendix for Chapter~\thechapter}
+\addcontentsline{toc}{chapter}{Appendices}
+\counterwithin{figure}{section}
+\counterwithin{table}{section}
+}
+
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}
+
+\makeatletter
+
+\let\oldabs\abs
+\def\abs{\@ifstar{\oldabs}{\oldabs*}}
+
+\let\oldnorm\norm
+\def\norm{\@ifstar{\oldnorm}{\oldnorm*}}
+\makeatother
+
+
+\newcounter{llst}
+\newenvironment{abet}{\begin{list}{\rm (\alph{llst})}{\usecounter{llst}
+\setlength{\itemindent}{0em} \setlength{\leftmargin}{3em}
+\setlength{\labelwidth}{2em} \setlength{\labelsep}{1em}}}{\end{list}}
+\newenvironment{numm}{\begin{list}{\rm (\roman{llst})}{\usecounter{llst}
+\setlength{\itemindent}{0em} \setlength{\leftmargin}{3.5em}
+\setlength{\labelwidth}{2.5em} \setlength{\labelsep}{1em}}}{\end{list}}
+
+\renewcommand{\baselinestretch}{1.25}
+
+\newtheorem{thm}{Theorem}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{acknowledgement}[theorem]{Acknowledgement}
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{axiom}[theorem]{Axiom}
+\newtheorem{case}[theorem]{Case}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conclusion}[theorem]{Conclusion}
+\newtheorem{condition}[theorem]{Condition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{criterion}[theorem]{Criterion}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{expl}[theorem]{Example}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{hypothesis}[theorem]{Hypothesis}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{property}[theorem]{Properties}
+\newtheorem{rmrk}[theorem]{Remark}
+\newtheorem{solution}[theorem]{Solution}
+\newtheorem{summary}[theorem]{Summary}
+
+\newenvironment{example}{\begin{expl} \rm}{\hfill $\blacklozenge$ \end{expl}}{}
+\newenvironment{remark}{\begin{rmrk} \rm}{\hfill $\blacklozenge$ \end{rmrk}}{}
+
+\counterwithin{figure}{section}
+% \counterwithin{table}{section}
+
+\makeindex
+
+\begin{document}
+
+\pagenumbering{roman}
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+        
+        \huge
+        \textbf{Toward a Digital Strategy\\for Northern Ireland}
+        
+        \vspace{1.5cm}
+        
+        \Large
+        \textbf{Owen Sims}
+        
+        \vfill
+        
+        \vspace{0.8cm}
+        \includegraphics[width=0.25\textwidth]{images/cbi-logo.png}
+        
+        \large
+        CBI Northern Ireland
+        
+		\today
+    \end{center}
+\end{titlepage}
+
+\vspace*{\stretch{3}}
+
+\thispagestyle{empty}
+\newpage
+
+\setcounter{page}{1} \pagenumbering{roman}
+
+\begin{singlespace}
+\setcounter{tocdepth}{2}
+\tableofcontents
+
+\chapter*{Executive summary}
+
+\addcontentsline{toc}{chapter}{Executive summary}
+
+To be written...
+\end{singlespace}
+
+\newpage
+\mbox{}
+\thispagestyle{empty}
+\newpage
+
+\include{chapters/01Introduction}
+\include{chapters/02DigitalSkills}
+
+\singlespace
+
+\addcontentsline{toc}{chapter}{Bibliography}
+
+\bibliographystyle{bibliography/agsm}
+\bibliography{bibliography/OSDB}
+
+% \listoftheorems[ignoreall,show={theorem}]
+
+\end{document}
