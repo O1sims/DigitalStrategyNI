@@ -1,6 +1,6 @@
 <img src="https://github.com/O1sims/MigrationNI/raw/master/presentation/images/cbi-logo.png" height="75px" width="160px" align="right" />
 
-# Towards a Digital Strategy for NI
+# Towards a Digital Strategy for Northern Ireland
 
 ## Overview
 
