@@ -1,4 +1,4 @@
-\documentclass[11pt,fleqn]{book}
+\documentclass[10pt,fleqn]{book}
 
 \usepackage{shorttoc}
 \usepackage{makeidx,natbib,vmargin,setspace}
@@ -22,6 +22,8 @@
 \usepackage{float}
 \usepackage{thmtools}
 \usepackage[section]{placeins}
+\usepackage[symbol]{footmisc}
+
 
 \restylefloat{table}
 
@@ -67,7 +69,6 @@
 \def\norm{\@ifstar{\oldnorm}{\oldnorm*}}
 \makeatother
 
-
 \newcounter{llst}
 \newenvironment{abet}{\begin{list}{\rm (\alph{llst})}{\usecounter{llst}
 \setlength{\itemindent}{0em} \setlength{\leftmargin}{3em}
@@ -77,100 +78,52 @@
 \setlength{\labelwidth}{2.5em} \setlength{\labelsep}{1em}}}{\end{list}}
 
 \renewcommand{\baselinestretch}{1.25}
-
-\newtheorem{thm}{Theorem}
-\newtheorem{theorem}{Theorem}[section]
-\newtheorem{acknowledgement}[theorem]{Acknowledgement}
-\newtheorem{algorithm}[theorem]{Algorithm}
-\newtheorem{axiom}[theorem]{Axiom}
-\newtheorem{case}[theorem]{Case}
-\newtheorem{claim}[theorem]{Claim}
-\newtheorem{conclusion}[theorem]{Conclusion}
-\newtheorem{condition}[theorem]{Condition}
-\newtheorem{conjecture}[theorem]{Conjecture}
-\newtheorem{corollary}[theorem]{Corollary}
-\newtheorem{criterion}[theorem]{Criterion}
-\newtheorem{definition}[theorem]{Definition}
-\newtheorem{expl}[theorem]{Example}
-\newtheorem{exercise}[theorem]{Exercise}
-\newtheorem{hypothesis}[theorem]{Hypothesis}
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{notation}[theorem]{Notation}
-\newtheorem{problem}[theorem]{Problem}
-\newtheorem{proposition}[theorem]{Proposition}
-\newtheorem{property}[theorem]{Properties}
-\newtheorem{rmrk}[theorem]{Remark}
-\newtheorem{solution}[theorem]{Solution}
-\newtheorem{summary}[theorem]{Summary}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
 
 \newenvironment{example}{\begin{expl} \rm}{\hfill $\blacklozenge$ \end{expl}}{}
 \newenvironment{remark}{\begin{rmrk} \rm}{\hfill $\blacklozenge$ \end{rmrk}}{}
 
 \counterwithin{figure}{section}
-% \counterwithin{table}{section}
+\counterwithin{table}{section}
 
 \makeindex
 
 \begin{document}
-
-\pagenumbering{roman}
+\pagenumbering{gobble}
 \begin{titlepage}
     \begin{center}
         \vspace*{1cm}
         
         \huge
-        \textbf{Toward a Digital Strategy\\for Northern Ireland}
+        \textbf{Toward a Digital Strategy\\for Northern Ireland \footnote[2]{This is a preliminary version and some sections may be incomplete.}}
         
-        \vspace{1.5cm}
-        
-        \Large
+        \large
         \textbf{Owen Sims}
         
         \vfill
         
-        \vspace{0.8cm}
         \includegraphics[width=0.25\textwidth]{images/cbi-logo.png}
         
         \large
         CBI Northern Ireland
         
-		\today
+        \today
     \end{center}
 \end{titlepage}
 
-\vspace*{\stretch{3}}
-
-\thispagestyle{empty}
-\newpage
-
-\setcounter{page}{1} \pagenumbering{roman}
-
-\begin{singlespace}
 \setcounter{tocdepth}{2}
 \tableofcontents
 
-\chapter*{Executive summary}
-
-\addcontentsline{toc}{chapter}{Executive summary}
-
-To be written...
-\end{singlespace}
-
-\newpage
-\mbox{}
-\thispagestyle{empty}
-\newpage
-
+\include{chapters/00ExecutiveSummary}
 \include{chapters/01Introduction}
 \include{chapters/02DigitalSkills}
 
+\appendix
+\include{appendices/0AIndustrialCodes}
+
 \singlespace
-
 \addcontentsline{toc}{chapter}{Bibliography}
-
 \bibliographystyle{bibliography/agsm}
 \bibliography{bibliography/OSDB}
-
-% \listoftheorems[ignoreall,show={theorem}]
 
 \end{document}
