@@ -9,3 +9,4 @@
 
 # Massive raw data files
 analysis/data/raw-data/*
+.Rproj.user
