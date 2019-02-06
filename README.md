@@ -1,4 +1,4 @@
-<img src="https://github.com/O1sims/MigrationNI/raw/master/presentation/images/cbi-logo.png" height="75px" width="160px" align="right" />
+<img src="https://github.com/O1sims/DigitalStrategyNI/raw/master/images/cbi-logo.png" height="75px" width="160px" align="right" />
 
 # Towards a Digital Strategy for Northern Ireland
 
