@@ -9,4 +9,7 @@
 
 # Massive raw data files
 analysis/data/raw-data/*
+
+# R stuff
 .Rproj.user
+.Rhistory
