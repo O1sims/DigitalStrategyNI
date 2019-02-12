@@ -10,15 +10,20 @@ library(magrittr)
 #   read_csv()
 
 
-chart_level_totals <- function(full_data, level = c("A Level", "AS Level", "GCSE"), gender = TRUE) {
-  alevel_overall_data <- full_data %>%
-    subset(Level==level) %>%
-    subset(Education=="Overall")
+chart_level_totals <- function(full_data, level = c("All", "A Level", "AS Level", "GCSE"), gender = TRUE) {
+  if (level == "All") {
+    alevel_overall_data <- full_data %>%
+      subset(Education == "Overall")
+  } else {
+    alevel_overall_data <- full_data %>%
+      subset(Level == level) %>%
+      subset(Education == "Overall")
+  }
   
   totals <- males <-females <- c()
   for (year in alevel_overall_data$Year %>% unique()) {
     yearly_data <- alevel_overall_data %>% 
-      subset(Year==year)
+      subset(Year == year)
     male <- yearly_data %>% 
       subset(Gender == "Males") %$% 
       Number %>% sum()
@@ -55,25 +60,44 @@ chart_level_totals <- function(full_data, level = c("A Level", "AS Level", "GCSE
   if (gender) {
     melted_totals_df %<>% 
       subset(var!="totalNumber")
+    
     chart <- ggplot(
       data = melted_totals_df,
-      aes(x = year, y = value)) + 
-      geom_area(position = 'stack') +
-      labs(title = paste0("Number of ", level, " students (", minYear, "-", maxYear, ")")) +
-      ylab(label = "Number") + xlab(label = "Year") +
+      aes(x = year, y = value, fill = var)) + 
+      geom_area(
+        colour = "black",
+        alpha = 0.4, 
+        size = 0.2) +
+      labs(title = paste0("Gender and number of enrolled ", level, " students (", minYear, "--", maxYear, ")")) +
+      ylab(label = "Number") + 
+      xlab(label = "Year") +
+      scale_fill_discrete(
+        name = "Gender") +
       theme_minimal()
   } else {
     melted_totals_df %<>%
       subset(var=="totalNumber")
+    
     chart <- ggplot(
       data = melted_totals_df,
-      aes(x = year, y = value)) + 
+      aes(x = year, y = value)) +
+      geom_area(
+        colour = "black",
+        alpha = 0.4, 
+        size = 0.2) +
       geom_point() + 
       geom_line() +
-      labs(title = paste0("Number of ", level, " students (", minYear, "-", maxYear, ")")) +
+      geom_area(alpha = 0.2) +
+      labs(title = paste0("Number of enrolled ", level, " students (", minYear, "--", maxYear, ")")) +
       ylab(label = "Number") + xlab(label = "Year") +
       theme_minimal()
   }
+  
+  "~/Code/DigitalStrategyNI/analysis/images/" %>%
+    paste0(level %>% tolower(), ifelse(gender, "-gender", ""), "-enrolment.png") %>%
+    ggsave(
+      plot = chart, 
+      device = "png")
   
   return(chart)
 }
@@ -83,7 +107,7 @@ load(file = getwd() %>%
 
 
 chart_level_totals(
-  full_data = gcse_alevels, 
-  level = "AS Level", 
-  gender = FALSE)
+  full_data = gcse_alevels,
+  level = "AS Level",
+  gender = TRUE)
 
