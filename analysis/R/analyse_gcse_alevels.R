@@ -17,8 +17,19 @@ chart_level_totals <- function(full_data, level = c("All", "A Level", "AS Level"
   } else {
     alevel_overall_data <- full_data %>%
       subset(Level == level) %>%
-      subset(Education == "Overall")
+      subset(Education == "Overall") %>%
+      subset(Gender == "Total")
   }
+  
+  if ()
+  ggplot(alevel_overall_data) +
+    geom_bar(data = alevel_overall_data, aes(x = Year, y = Number, fill = Subject), colour = "black", 
+              size = .2, 
+              alpha = .4, stat = "identity")
+  
+  "~/Code/DigitalStrategyNI/analysis/images/" %>%
+    paste0(level %>% tolower(), ifelse(gender, "-gender", ""), "-enrolment-by-subject.png") %>%
+    ggsave(device = "png")
   
   totals <- males <-females <- c()
   for (year in alevel_overall_data$Year %>% unique()) {
@@ -108,6 +119,6 @@ load(file = getwd() %>%
 
 chart_level_totals(
   full_data = gcse_alevels,
-  level = "AS Level",
+  level = "A Level",
   gender = TRUE)
 

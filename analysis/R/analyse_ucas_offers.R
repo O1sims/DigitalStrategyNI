@@ -34,18 +34,49 @@ for (subject in ucas_applicants$`Subject Group (Detailed Level)` %>% unique()) {
 
 filters <- list(
   subjects = computer_subjects,
-  applicationRoute = "'Firm choice'",
+  applicationRoute = "'Insurance choice'",
   domicile = "'Northern Ireland'")
 
 ucas_data <- ucas_applicants %>%
   subset(`Subject Group (Detailed Level)` %in% filters$subject) %>%
-  subset(`Acceptance Route` == filters$applicationRoute) %>%
+  subset(`Acceptance Route` %in% filters$applicationRoute) %>%
   subset(`Applicant Domicile (High Level)` == filters$domicile)
 
 hostEntrants <- ucas_hosts %>%
   subset(`Subject Group (Detailed Level)` %in% filters$subject) %>%
-  subset(`Acceptance Route` == filters$applicationRoute) %>%
+  subset(`Acceptance Route` %in% filters$applicationRoute) %>%
   subset(`Provider Country` == filters$domicile)
+
+allYears <- ucas_data$`Cycle Year` %>% unique()
+totalYears <- totalHostYears <- c()
+for (year in allYears) {
+  sub <- subset(ucas_data, `Cycle Year` == year)
+  totalYears %<>% append(sum(sub$`Number of Acceptances`))
+  subHosts <- subset(hostEntrants, `Cycle Year` == year)
+  totalHostYears %<>% append(sum(subHosts$`Number of Acceptances`))
+}
+
+df <- data.frame(
+  years = allYears,
+  totalApplicationYears = totalYears,
+  totalHostYears = totalHostYears,
+  stringsAsFactors = FALSE)
+
+ggplot(data = df) + 
+  geom_line(aes(x = years, y = totalApplicationYears, colour = "Applications")) + 
+  geom_point(aes(x = years, y = totalApplicationYears, colour = "Applications")) +
+  geom_line(aes(x = years, y = totalHostYears, colour = "Acceptances")) +
+  geom_point(aes(x = years, y = totalHostYears, colour = "Acceptances")) +
+  scale_colour_discrete(
+    name = "",
+    labels = c("UCAS Acceptances", "UCAS Applications")) +
+  ylab("Number") + xlab("Years") +
+  labs(title = "Number of UCAS applications from NI students to UK firms &\n number of UCAS acceptancs by NI universities in EEECS subjects") +
+  theme_minimal()
+
+ggsave(
+  filename = getwd() %>% paste0("/analysis/images/ucas-applications-insurance.png"), 
+  device = "png")
 
 ucas_data$demandSupplyDiff <- ucas_data$`Number of Acceptances` - 
   hostEntrants$`Number of Acceptances`
@@ -62,7 +93,7 @@ ucas_application_chart <- ggplot(
     colour = "black", 
     size = .2, 
     alpha = .4) +
-  labs(title = paste0('UK university acceptances by all ', filters$applicationRoute, ' NI applicants (2007-2018)')) +
+  labs(title = paste0('UK university applications by all ', filters$applicationRoute, ' NI applicants (2007-2018)')) +
   ylab("Number of acceptances") + xlab("Year") +
   scale_fill_discrete(
     name = "Subject",
@@ -70,7 +101,7 @@ ucas_application_chart <- ggplot(
   theme_minimal()
 
 ggsave(
-  filename = getwd() %>% paste0("/analysis/images/ucas-applications.png"), 
+  filename = getwd() %>% paste0("/analysis/images/ucas-applications-insurance.png"), 
   plot = ucas_application_chart, 
   device = "png")
 
@@ -98,9 +129,9 @@ ggsave(
 ucas_gap_chart <- ggplot(
   data = ucas_data,
   aes(x = `Cycle Year`)) + 
-  geom_point(aes(y = demandSupplyDiff * 2,
+  geom_point(aes(y = demandSupplyDiff,
                  colour = `Subject Group (Detailed Level)`)) + 
-  geom_line(aes(y = demandSupplyDiff * 2, 
+  geom_line(aes(y = demandSupplyDiff, 
                 colour = `Subject Group (Detailed Level)`)) +
   labs(title = paste0("Difference between number of University applications and number of acceptances (2007--2018)")) +
   ylab("Demand / supply difference") + xlab("Year") +
