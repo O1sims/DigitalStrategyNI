@@ -34,7 +34,7 @@ generate_ict_proportion_projects <- function(INIData, SICSector) {
 
 
 generate_job_creation_bar <- function(INIData, SICSector = NULL) {
-  if (!is.null(sector)) {
+  if (!is.null(SICSector)) {
     INIData %<>% 
       subset(`SIC Sector` == SICSector)
   }
@@ -66,17 +66,11 @@ violin_chart_total_investment <- function(INIData, SICSectors = c()) {
     geom_violin(
       aes(
         x = `SIC Sector`, 
-        y = `Total Investment (Includes Invest NI Assistance)`, 
-        fill = `Ownership when the offer was made`)) +
-    theme(
-      legend.position = "none",
-      axis.text.x = element_text(
-        angle = 45, 
-        hjust = 1))
+        y = `Total Investment (Includes Invest NI Assistance)`)) +
+    theme(legend.position = "none")
 }
 
 total_investment_over_time <- function(INIData, SICSector) {
-  
   INIData %<>% 
     subset(`SIC Sector` == SICSector) 
   
@@ -136,3 +130,29 @@ generate_ict_proportion_projects(
 violin_chart_total_investment(
   INIData = INIData, 
   SICSectors = c("Information And Communication"))
+
+# Generate stacked bar chart for total investment
+total_investment_over_time(
+  INIData = INIData, 
+  SICSector = "Information And Communication")
+
+
+
+
+
+# Proportion of investment provided by Invest NI
+average_amount_ini <- function(sector = NA) {
+  financed.INI.projects <- INIData %>% 
+    subset(`Total Assistance Offered by Invest NI` > 0 & 
+             `Total Investment (Includes Invest NI Assistance)` > 0)
+  
+  if (!is.na(sector)) {
+    financed.INI.projects %<>% 
+      subset(`SIC Sector` == sector)
+  }
+  
+  (financed.INI.projects$`Total Assistance Offered by Invest NI` / 
+      financed.INI.projects$`Total Investment (Includes Invest NI Assistance)`) %>% 
+    mean() %>%
+    return()
+}
