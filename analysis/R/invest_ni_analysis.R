@@ -4,8 +4,10 @@ library(ggthemes)
 library(magrittr)
 
 
+
 generate_ict_proportion_projects <- function(INIData, SICSector) {
   ictPercentage <- c()
+  
   uniqueYears <- INIData$`Financial Year Offer Made` %>% 
     unique()
   
@@ -22,13 +24,22 @@ generate_ict_proportion_projects <- function(INIData, SICSector) {
     year = uniqueYears,
     percentage = ictPercentage,
     stringsAsFactors = FALSE) %>%
-    ggplot(aes(
-      x = year, 
-      y = percentage)) +
+    ggplot(
+      mapping = aes(
+        x = year, 
+        y = percentage,
+        group = NA)) +
+    geom_line() +
     geom_point() +
-    ylab(label = "Percentage of projects (%)") +
-    xlab(label = "Financial year") +
+    ylab("Percentage of supported projects in ICT (%)") +
+    xlab("Financial year") +
     theme_minimal()
+  
+  getwd() %>%
+    paste0("/analysis/images/ini-percentage-projects-ict.png") %>% 
+    ggsave(
+      plot = percentageChart, 
+      device = "png")
   
   return(percentageChart)
 }
@@ -38,6 +49,11 @@ generate_job_creation_bar <- function(INIData, SICSector = NULL) {
   if (!is.null(SICSector)) {
     INIData %<>% 
       subset(`SIC Sector` == SICSector)
+    s <- SICSector %>% 
+      tolower() %<>%
+      gsub(" ", "-", .)
+  } else {
+    s <- ""
   }
   
   INIDataChart <- INIData %>%
@@ -50,37 +66,62 @@ generate_job_creation_bar <- function(INIData, SICSector = NULL) {
       stat = "identity") +
     ylab(label = "Jobs created") +
     xlab(label = "Financial year") +
-    labs(title = "Invest Northern Ireland Activity") +
+    scale_fill_discrete(name = "Ownership") +
     theme_minimal() +
-    theme(legend.position = "none")
+    theme()
+  
+  getwd() %>%
+    paste0("/analysis/images/ini-job-creation-", s, ".png") %>%
+    ggsave(
+      plot = INIDataChart,
+      device = "png")
   
   return(INIDataChart)
 }
 
 
 violin_chart_total_investment <- function(INIData, SICSectors = c()) {
-  INIData %>% 
+  violinChart <- INIData %>% 
     subset(
       `SIC Sector` %in% 
         SICSectors) %>%
-    ggplot() +
-    geom_violin(
-      aes(
+    ggplot(
+      mapping = aes(
         x = `SIC Sector`, 
         y = (`Total Investment (Includes Invest NI Assistance)`)/1000000,
-        fill = `SIC Sector`)) +
-    xlab(label = "SIC sector") +
+        group = `Ownership when the offer was made`,
+        colour = `Ownership when the offer was made`,
+        fill = `Ownership when the offer was made`)) +
+    geom_violin() +
+    xlab("") +
     scale_y_continuous(
       name = "Total investment (£ million)", 
       labels = scales::comma) +
+    scale_fill_discrete(name = "Ownership") +
+    scale_color_discrete(guide = 'none') +
     theme_minimal() +
-    theme(legend.position = "none")
+    theme()
+  
+  getwd() %>%
+    paste0("/analysis/images/ini-distribution-of-ict-investments.png") %>%
+    ggsave(
+      plot = violinChart,
+      device = "png")
+  
+  return(violinChart)
 }
 
 
-total_investment_over_time <- function(INIData, SICSector) {
-  INIData %<>% 
-    subset(`SIC Sector` == SICSector) 
+total_investment_over_time <- function(INIData, SICSector = NA) {
+  if (!is.na(SICSector)) {
+    INIData %<>% 
+      subset(`SIC Sector` == SICSector)
+    s <- SICSector %>% 
+      tolower() %<>%
+      gsub(" ", "-", .)
+  } else {
+    s <- ""
+  }
   
   totalInvestment <- c()
   allFinancialYears <- INIData$`Financial Year Offer Made` %>% 
@@ -95,20 +136,29 @@ total_investment_over_time <- function(INIData, SICSector) {
       append(values = total)
   }
   
-  INIData %>%
+  investmentOverTime <- INIData %>%
     ggplot() +
     geom_bar(
       aes(
         x = `Financial Year Offer Made`, 
-        y = `Total Investment (Includes Invest NI Assistance)`,
+        y = `Total Investment (Includes Invest NI Assistance)` / 1000000,
         fill = `Ownership when the offer was made`), 
       stat = "identity") +
-    ylab(label = "Total investment (£)") +
-    xlab(label = "Financial year") + 
-    scale_fill_discrete(breaks = c("External","Local")) +
-    theme_minimal() +
-    theme(
-      legend.title = element_blank())
+    xlab(label = "") + 
+    scale_y_continuous(
+      name = "Total investment (£ million)", 
+      labels = scales::comma) +
+    scale_fill_discrete(
+      name = "Ownership") +
+    theme_minimal()
+  
+  getwd() %>%
+    paste0("/analysis/images/ini-investment-over-time", s, ".png") %>%
+    ggsave(
+      plot = investmentOverTime,
+      device = "png")
+  
+  return(investmentOverTime)
 }
 
 
@@ -139,6 +189,7 @@ INIData <- getwd() %>%
 INIData$`SIC Sector` %<>% gsub(
   pattern = "&", 
   replacement = "And")
+
 INIData$`SIC Sector` %<>% gsub(
   pattern = "Wholesale And Retail Trade; Repair Of Motor Vehicles And Motorcycles", 
   replacement = "Wholesale And Retail Trade And Repair of Vehicles")
@@ -179,3 +230,68 @@ ICData %>%
   subset(`Ownership when the offer was made` == "External") %$%
   `Jobs to be Created (Assisted)` %>% 
   sum()
+
+
+
+
+# Percentage of jobs created in ICT
+for (year in INIData$`Financial Year Offer Made` %>% unique()) {
+  yearINIData <- subset(
+    x = INIData, 
+    subset = `Financial Year Offer Made` == year)
+  
+  yearICData <- subset(
+    x = yearINIData, 
+    subset = `SIC Sector` == SICSector)
+  
+  s <- sum(yearICData$`Jobs to be Created (Assisted)`)
+  
+  n <- sum(yearINIData$`Jobs to be Created (Assisted)`)
+  
+  print(s/n)
+}
+
+
+
+
+ictJobPercentage <- c()
+
+uniqueYears <- INIData$`Financial Year Offer Made` %>% 
+  unique()
+
+for (year in uniqueYears) {
+  yearINIData <- subset(
+    x = INIData, 
+    subset = `Financial Year Offer Made` == year)
+  
+  yearICData <- subset(
+    x = yearINIData, 
+    subset = `SIC Sector` == SICSector)
+  
+  s <- sum(yearICData$`Jobs to be Created (Assisted)`)
+  
+  n <- sum(yearINIData$`Jobs to be Created (Assisted)`)
+  
+  ictJobPercentage %<>% append(s/n)
+}
+
+proportionJobsICT <- data.frame(
+  year = uniqueYears,
+  jobPercentage = ictJobPercentage,
+  stringsAsFactors = FALSE) %>%
+  ggplot(
+    mapping = aes(
+      x = year, 
+      y = jobPercentage,
+      group = NA)) +
+  geom_line() +
+  geom_point() +
+  ylab("Percentage of jobs created in ICT relative to all sectors (%)") +
+  xlab("") +
+  theme_minimal()
+
+getwd() %>%
+  paste0("/analysis/images/ini-proportion-jobs-created-ict.png") %>%
+  ggsave(
+    plot = proportionJobsICT,
+    device = "png")
