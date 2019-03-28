@@ -207,3 +207,122 @@ ucas_application_acceptance_diff(
   ucasHostData = ucas_hosts,
   applicationRoute = "'Firm choice'", 
   domicile = "'Northern Ireland'")
+
+
+
+clean_subject <- function(subject) {
+  if (grepl(" - ", subject)) {
+    subject %<>% 
+      strsplit(split = " - ")
+    subject <- subject[[1]][2] %>% 
+      gsub(pattern = "'", replacement = "")
+  } else {
+    subject <- NA
+  }
+  return(subject)
+}
+
+
+where_students_go <- function(ucasApplicationData, fromYear, domicile) {
+  ucasApplicationData %<>% 
+    subset(`Applicant Domicile (High Level)` == domicile &
+             `Cycle Year` >= fromYear)
+  for (i in 1:(ucasApplicationData %>% nrow())) {
+    ucasApplicationData$cleanSubject[i] <- ucasApplicationData$`Subject Group (Detailed Level)`[i] %>% 
+      clean_subject()
+  }
+  subjectero <- subjectYear <- totalNumber <- c()
+  cleanSubjects <- ucasApplicationData$cleanSubject %>% 
+    unique()
+  for (subject in cleanSubjects) {
+    if (!(subject %>% is.na())) {
+      subjectSubset <- ucasApplicationData %>% 
+        subset(cleanSubject == subject) 
+      for (year in subjectSubset$`Cycle Year` %>% unique()) {
+        subjectero %<>% 
+          append(subject)
+        subjectYear %<>% 
+          append(year)
+        totalNumber %<>% append(subjectSubset %>%
+          subset(`Cycle Year` == year) %$%
+          `Number of Acceptances` %>% 
+          sum())
+      }
+    }
+  }
+  df <- data.frame(
+    subject = subjectero,
+    year = subjectYear,
+    number = totalNumber,
+    stringsAsFactors = FALSE)
+  completeSubjects <- variance <- totalChange <- c()
+  for (s in cleanSubjects) {
+    subject.df <- df %>% 
+      subset(subject == s)
+    if (fromYear %in% subject.df$year & (subjectYear %>% max()) %in% subject.df$year) {
+      variance %<>% append(var(df %>% subset(subject == s) %$% number))
+      t1 <- df %>% subset(subject == s & year == fromYear) %$% number
+      t2 <- df %>% subset(subject == s & year == subjectYear %>% max()) %$% number
+      totalChange %<>% append(t2 - t1)
+      completeSubjects %<>% append(s)
+    }
+  }
+  
+  df2 <- data.frame(
+    subject = completeSubjects, 
+    variance = variance, 
+    totalChange = totalChange)
+  
+  df3 <- rbind(
+    df2[order(totalChange), ][1:10, ],
+    df2[order(-totalChange), ][1:10, ]) %>%
+    as.data.frame() %<>% 
+    .[order(-.$totalChange), ]
+  
+  df3$subject %<>% 
+    gsub(" and ", " & ", .) %<>% 
+    gsub(" by Area", "", .) %<>%
+    gsub("Combinations within ", "", .) %<>%
+    gsub(" by Period", "", .)  %<>%
+    gsub("Building", "Building & Planning", .)  %<>%
+    gsub("Others in Biological Sciences", "Biological Sciences", .)
+  
+  df3$subject %<>% factor(
+    levels = df3[order(-df3$totalChange), ]$subject)
+  
+  topBottom10Bar <- df3 %>%
+    ggplot() +
+    geom_bar(
+      mapping = aes(
+        x = subject, 
+        y = totalChange,
+        fill = totalChange > 0), 
+      stat = "identity",
+      position = "identity") +
+    geom_hline(yintercept = 0) +
+    coord_flip() +
+    ylab("") +
+    xlab("") +
+    labs(
+      title = "Change in the number of acceptances by NI Universities (by broad subject area), " %>% 
+        paste0(fromYear, "-", (subjectYear %>% max())), 
+      caption = "Source: UCAS") +
+    theme_minimal() +
+    theme(
+      legend.position = "none")
+  
+  getwd() %>%
+    paste0("/analysis/images/change-in-acceptances-", fromYear, "-", 
+           (subjectYear %>% max()),".png") %>%
+    ggsave(
+      plot = topBottom10Bar, 
+      device = "png")
+  
+  return(topBottom10Bar)
+}
+
+
+where_students_go(
+  ucasApplicationData = ucas_applicants,
+  fromYear = 2014,
+  domicile = "'Northern Ireland'")
