@@ -21,16 +21,21 @@ DATA_DIR_PATH = os.getcwd() + '/data'
 
 
 PROGRAMMING_LANGUAGES = [
+    'kdb'
+    ' lua ',
+    ' c ',
+    ' r ',
     'python',
     'linux',
-    'java',
+    'java ',
     'scala',
     'clojure'
     'html',
     'golang',
+    'docker',
     'javascript',
     'ruby',
-    'rust',
+    ' rust',
     'erlang',
     'objective-c',
     'objective c',
@@ -107,6 +112,17 @@ def count_languages(job_specs):
     return language_counter
 
 
+def parse_languages(description):
+    languages = []
+    if 'Go ' in description:
+        languages.append('go')
+    desc_lower = description.lower()
+    for lang in PROGRAMMING_LANGUAGES:
+        if lang in desc_lower:
+            languages.append(lang)
+    return languages
+
+
 search_page = get_job_search_page()
 all_job_listings = parse_all_listings(
     search_page_soup=search_page)
@@ -120,6 +136,8 @@ for role in all_job_listings:
     str = str.translate(str.maketrans('', '', punctuation))
     wage_list = [int(s) for s in str.split() if s.isdigit()]
     role['wage'] = wage_list
+    role['languages'] = parse_languages(
+        description=role['details']['description'])
     if role['contractType'] == 'Permanent':
         if len(wage_list) > 1:
             max_wages.append(wage_list[len(wage_list)-1])
