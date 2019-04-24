@@ -1,36 +1,184 @@
+library(plyr)
 library(ggplot2)
 library(ggthemes)
+library(jsonlite)
 library(magrittr)
 
 
 
-minWages <- c(55000, 45000, 40000, 24000, 40000, 60000, 42000, 60000, 65000, 55000, 25000, 30000, 28000, 40000, 30000, 35000, 60000, 35000, 55000, 40000, 55000, 60000, 25000, 35000, 65000, 35000, 32000, 50000, 30000, 22000, 28000, 32000, 40000, 40000, 50000, 40000, 45000, 24000, 55000, 25000, 35000, 60000, 20000, 65000, 40000, 32000, 50000, 20000, 20000, 35000, 40000, 60000, 30000, 50000, 30000, 50000, 35000, 35000, 20000, 50000, 25000, 55000, 25000, 25000, 60000, 35000, 30000, 32000, 40000, 38000, 40000, 25000, 65000, 35000, 30000, 40000, 45000, 80000, 28000, 45000, 35000, 25000, 60000, 32000, 40000, 85000, 45000, 22000, 45000, 30000, 55000, 55000, 55000, 25000, 32000, 35000, 40000, 40000, 45000, 45000, 32000, 70000, 35000, 35000, 32000, 25000, 45000, 45000, 55000, 55000, 55000, 25000, 25000, 24000, 55000, 45000, 22000, 32000, 50000, 45000, 55000, 45000, 40000, 28000, 55000, 40000, 85000, 51000, 22000, 60000, 24000, 45000, 65000, 45000, 55000, 55000, 22000, 40000, 40000, 55000, 45000, 55000, 22000, 35000, 35000, 37000, 25000, 45000, 42000, 22000, 40000, 26000, 55000, 25000, 45000, 50000, 55000, 55000, 25000, 40000, 42000, 24000, 25000, 65000, 55000, 45000, 45000, 40000, 30000, 42000, 25000, 22000, 55000, 65000, 45000, 40000, 30000, 27000, 35000, 19000, 22000, 22000, 35000, 25000, 25000, 55000, 45000, 40000, 22000, 50000, 60000, 42000, 45000, 45000, 25000, 35000, 55000, 22000, 50000, 40000, 30000, 35000, 65000, 40000, 55000, 50000, 32000, 35000, 42000, 45000, 55000, 55000, 25000, 42000, 40000, 50000, 60000, 45000, 40000, 40000, 30000, 40000, 50000, 50000, 42000, 41000, 22000, 55000, 65000, 40000, 55000, 25000, 45000, 65000, 45000, 45000, 50000, 32000, 60000, 65000, 22000, 55000, 45000, 40000, 60000, 40000, 50000, 22000, 45000, 65000, 35000, 43500, 40000, 45000, 22000, 30000, 45000, 55000, 65000, 45000, 40000, 22000, 30000, 55000, 85000, 50000, 32000, 50000, 55000, 65000, 45000, 30000, 40000, 50000, 22000, 60000, 30000, 55000, 65000, 22000, 40000, 22000, 40000, 25000, 45000, 45000, 55000, 65000, 22000, 30000, 50000, 50000, 35000, 40000, 50000, 40000, 65000, 40000, 55000, 25000, 55000, 25000, 50000, 25000, 65000, 55000, 40000, 25000, 45000, 80000, 65000, 55000, 22000, 40000, 29000, 50000, 32000, 40000, 26000, 55000, 22000, 25000, 65000, 40000, 40000, 35000, 40000, 22000, 60000, 55000, 40000, 50000, 50000, 40000, 65000, 45000, 30000, 45000, 40000, 30000, 32000, 55000, 40000, 25000, 55000, 45000, 20000, 22000, 55000, 40000, 40000, 25000, 50000, 55000, 35000, 40000, 35000, 40000, 40000, 35000, 25000, 45000, 40000, 40000, 35000, 55000, 50000, 40000, 50000, 27000, 70000, 70000, 45000, 45000, 22000, 65000, 25000, 40000, 40000, 50000, 35000, 45000, 40000, 35000, 42000, 32000, 55000, 45000, 20000, 30000, 22000, 65000, 25000)
+vanrath.data <- "/home/owen/Code/DigitalStrategyNI/analysis/data/jobSpecs.json" %>%
+  jsonlite::read_json()
 
-minRange <- rep(
-  "Minimum", 
-  length(minWages))
+minWages <- maxWages <- languages <- c()
+for (role in vanrath.data) {
+  if (length(role$languages) > 0) {
+    languages %<>% append(role$languages)
+  }
+  if (length(role$wage) > 1 && 
+      role$contractType == "Permanent") {
+    minWages %<>% append(role$wage[[1]])
+    maxWages %<>% append(role$wage[[2]])
+  } else if (length(role$wage) > 0 && 
+             role$contractType == "Permanent") {
+    maxWages %<>% append(role$wage[[1]])
+  }
+}
 
-maxWages <- c(65000, 50000, 26000, 45000, 65000, 45000, 70000, 75000, 65000, 35000, 35000, 32000, 45000, 40000, 70000, 70000, 45000, 65000, 42000, 65000, 70000, 35000, 70000, 75000, 45000, 38000, 55000, 35000, 35000, 36000, 45000, 60000, 42000, 50000, 26000, 60000, 35000, 70000, 70000, 24000, 75000, 50000, 38000, 65000, 24000, 24000, 45000, 50000, 100000, 55000, 60000, 45000, 60000, 45000, 45000, 25000, 70000, 35000, 60000, 35000, 35000, 65000, 70000, 45000, 39000, 50000, 45000, 55000, 35000, 75000, 45000, 35000, 50000, 60000, 120000, 38000, 50000, 70000, 35000, 70000, 38000, 45000, 95000, 55000, 35000, 50000, 55000, 65000, 65000, 60000, 35000, 39000, 45000, 60000, 50000, 50000, 50000, 38000, 80000, 40000, 40000, 35000, 55000, 55000, 65000, 65000, 60000, 35000, 35000, 26000, 60000, 55000, 30000, 40000, 55000, 65000, 55000, 65000, 35000, 60000, 50000, 95000, 60000, 26000, 65000, 26000, 55000, 75000, 50000, 65000, 60000, 26000, 45000, 45000, 65000, 55000, 60000, 25000, 40000, 45000, 35000, 55000, 45000, 35000, 45000, 35000, 65000, 35000, 55000, 60000, 65000, 60000, 35000, 50000, 45000, 26000, 35000, 75000, 60000, 55000, 50000, 65000, 40000, 50000, 35000, 30000, 60000, 75000, 55000, 50000, 38000, 30000, 45000, 25000, 25000, 25000, 45000, 35000, 30000, 60000, 55000, 45000, 30000, 70000, 65000, 45000, 55000, 55000, 35000, 45000, 60000, 25000, 65000, 55000, 45000, 55000, 75000, 65000, 65000, 60000, 38000, 40000, 45000, 55000, 60000, 60000, 35000, 50000, 65000, 60000, 80000, 50000, 50000, 50000, 55000, 50000, 60000, 60000, 45000, 51000, 25000, 60000, 75000, 45000, 65000, 35000, 50000, 75000, 50000, 55000, 70000, 42000, 80000, 75000, 30000, 65000, 55000, 50000, 80000, 45000, 60000, 25000, 55000, 75000, 45000, 51000, 65000, 50000, 26000, 40000, 55000, 65000, 75000, 70000, 50000, 30000, 55000, 65000, 95000, 60000, 40000, 70000, 65000, 75000, 55000, 35000, 45000, 58500, 30000, 80000, 36000, 65000, 75000, 30000, 55000, 25000, 50000, 35000, 55000, 50000, 60000, 75000, 26000, 38000, 55000, 60000, 45000, 50000, 60000, 50000, 75000, 65000, 65000, 35000, 60000, 35000, 60000, 35000, 75000, 65000, 65000, 35000, 65000, 100000, 75000, 60000, 30000, 45000, 37500, 55000, 39000, 50000, 30000, 65000, 30000, 35000, 75000, 50000, 65000, 40000, 50000, 25000, 70000, 65000, 50000, 60000, 60000, 60000, 75000, 58000, 40000, 50000, 50000, 45000, 40000, 60000, 50000, 35000, 65000, 65000, 50000, 30000, 60000, 50000, 65000, 35000, 60000, 60000, 45000, 50000, 40000, 48000, 60000, 45000, 30000, 55000, 45000, 65000, 60000, 60000, 50000, 60000, 30000, 85000, 85000, 70000, 55000, 30000, 75000, 35000, 65000, 55000, 60000, 45000, 50000, 45000, 45000, 50000, 39000, 65000, 50000, 50000, 40000, 25000, 75000, 35000)
+minRange <- "Minimum" %>% 
+  rep(length(minWages))
 
-maxRange <- rep(
-  "Maximum", 
-  length(maxWages))
+maxRange <- "Maximum" %>% 
+  rep(length(maxWages))
 
 data.frame(
-  wages = c(maxWages), 
-  type = c(maxRange), 
-  stringsAsFactors = FALSE) %>%
+  wage = maxWages  ,
+  type = maxRange, 
+  stringsAsFactors = FALSE) %>% 
+  subset(wage > 1000) %>%
   ggplot() + 
   geom_density(
     mapping = aes(
-      x = wages, 
-      fill = "red"), 
+      x = wage, 
+      fill = type), 
     alpha = 0.5, 
     size = 0.3) + 
   xlab("Salary (£)") + 
   ylab("Density") + 
-  labs(title = "Salary distribution for permanent IT professionals") +
+  labs(
+    title = "Salary distribution for permanent IT professionals, April 2019",
+    subtitle = "Wage analysis of 521 jobs") +
   theme_minimal() + 
   ggthemes::scale_fill_ptol() +
   theme(
     legend.position = "none")
+
+
+languages %<>% 
+  purrr::flatten_chr()
+
+languageTable <- languages %>% 
+  table() %>% 
+  as.data.frame() %>%
+  subset(Freq > 30)
+
+languageTable %>%
+  ggplot() + 
+  geom_bar(
+    mapping = aes(
+      y = Freq,
+      x = .), 
+    stat = "identity",
+    fill = "red",
+    colour = "black",
+    size = 0.3,
+    alpha = 0.5) + 
+  xlab("") +
+  ylab("Count") + 
+  labs(
+    title = "Number of IT vacancies by programming language & technology, April 2019") +
+  theme_minimal() + 
+  ggthemes::scale_fill_ptol() +
+  theme(
+    legend.position = "none")
+
+
+uniqueLanguages <- languageTable$.
+
+langMax <- language <- c()
+for (lang in uniqueLanguages) {
+  for (role in vanrath.data) {
+    if (lang %in% role$languages && 
+        length(role$wage) > 1 && 
+        role$contractType == "Permanent") {
+      langMax %<>% append(role$wage[[2]])
+      language %<>% append(lang)
+    } else if (lang %in% role$languages && 
+               length(role$wage) > 0 && 
+               role$contractType == "Permanent") {
+      langMax %<>% append(role$wage[[1]])
+      language %<>% append(lang)
+    }
+  }
+}
+
+
+language.df <- data.frame(
+  langMax, language, 
+  stringsAsFactors = FALSE) %>% 
+  subset(langMax > 1000) 
+
+stripped.language.df <- language.df[0, ]
+for (t in language.df$language %>% unique()) {
+  language.data <- language.df %>% 
+    subset(language == t)
+  language.data$mean <- faveMean <- as.integer(language.data$langMax %>% 
+                                             mean())
+  stripped.language.df %<>% 
+    rbind(language.data)
+}
+
+mean <- stripped.language.df$mean
+data <- stripped.language.df[order(-mean), ]
+stripped.language.df$language %<>% factor(
+  levels = data$language %>% unique())
+
+stripped.language.df %>%
+  ggplot() + 
+  geom_violin(
+    mapping = aes(
+      x = language,
+      y = langMax, 
+      fill = language), 
+    alpha = 0.5, 
+    size = 0.3) + 
+  xlab("") +
+  ylab("Salary (£)") + 
+  labs(
+    title = "NI salary distribution for programming languages & technologies, April 2019") +
+  theme_minimal() + 
+  ggthemes::scale_fill_ptol() +
+  theme(
+    legend.position = "none")
+
+
+# Network graph of languages
+
+source <- target <- c()
+for (role in vanrath.data) {
+  if (length(role$languages) > 1) {
+    combinations <- role$languages %>% 
+      combn(2)
+    source %<>% 
+      append(combinations[1, ])
+    target %<>% 
+      append(combinations[2, ])
+  }
+}
+
+network.df <- data.frame(
+  source = source %>% 
+    purrr::flatten_chr(),
+  target = target %>% 
+    purrr::flatten_chr(),
+  stringsAsFactors = FALSE)
+
+network.df %<>%
+  plyr::ddply(.(source, target), nrow)
+
+G <- igraph::graph_from_data_frame(
+  d = network.df, 
+  vertices = network.df[, 1:2] %>% 
+    purrr::flatten_chr() %>% 
+    unique(), 
+  directed = FALSE)
+
+layout <- G %>% 
+  layout.reingold.tilford(
+    circular = TRUE)
+
+G %>% 
+  plot(
+    layout = layout,
+    edge.width = network.df$V1 %>% 
+      log())
+
