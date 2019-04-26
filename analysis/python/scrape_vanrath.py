@@ -26,13 +26,17 @@ PROGRAMMING_LANGUAGES = [
     ' c ',
     ' r ',
     'python',
-    'linux',
+    'php',
     'java ',
     'scala',
     'clojure'
     'html',
     'golang',
-    'docker',
+    'erlang',
+    'bash',
+    'clojure',
+    'fortran',
+    'julia',
     'javascript',
     'ruby',
     ' rust',
@@ -46,6 +50,29 @@ PROGRAMMING_LANGUAGES = [
     'typescript',
     'sql']
 
+
+TECHNOLOGIES = [
+    'linux',
+    'tensorflow',
+    ' spring ',
+    'numpy'
+    'pandas',
+    'docker',
+    'kubernetes',
+    'xcode',
+    ' android ',
+    ' ios ',
+    'django', 
+    'flask', 
+    ' rails', 
+    ' react ', 
+    ' angular ', 
+    ' node', 
+    'mongo', 
+    ' elastic', 
+    ' spark ', 
+    'kafka', 
+    'aws', 'azure', 'gcp', 'google cloud', 'postgres', 'mysql', 'express', 'meteor', ' ember', 'vue', 'jquery']
 
 
 BASIC_REQUEST = {
@@ -112,6 +139,19 @@ def count_languages(job_specs):
     return language_counter
 
 
+def count_technologies(job_specs):
+    technologies_counter = {}
+    for role in job_specs:
+        desc_lower = role['details']['description'].lower()
+        for tech in TECHNOLOGIES:
+            if tech in desc_lower:
+                if tech in technologies_counter.keys():
+                    technologies_counter[tech] += 1
+                else:
+                    technologies_counter.update({tech: 1})
+    return technologies_counter
+
+
 def parse_languages(description):
     languages = []
     if 'Go ' in description:
@@ -123,10 +163,21 @@ def parse_languages(description):
     return languages
 
 
+def parse_technologies(description):
+    technologies = []
+    desc_lower = description.lower()
+    for tech in TECHNOLOGIES:
+        if tech in desc_lower:
+            technologies.append(tech)
+    return technologies
+
+
 search_page = get_job_search_page()
 all_job_listings = parse_all_listings(
     search_page_soup=search_page)
 language_counter = count_languages(
+    job_specs=all_job_listings)
+technology_counter = count_technologies(
     job_specs=all_job_listings)
 
 
@@ -137,6 +188,8 @@ for role in all_job_listings:
     wage_list = [int(s) for s in str.split() if s.isdigit()]
     role['wage'] = wage_list
     role['languages'] = parse_languages(
+        description=role['details']['description'])
+    role['technologies'] = parse_technologies(
         description=role['details']['description'])
     if role['contractType'] == 'Permanent':
         if len(wage_list) > 1:
