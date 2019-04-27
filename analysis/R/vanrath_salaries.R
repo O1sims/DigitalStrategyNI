@@ -6,13 +6,25 @@ library(magrittr)
 
 
 
+LONDON_WAGES <- c(
+  42155, 60000, 50000, 24000, 24000, 80000, 45000, 35000, 35000, 110000, 
+  40000, 40000, 42155, 56526, 60000, 75000, 50000, 34000, 65000, 65000, 
+  45000, 70000, 26000, 26000, 75000, 43000, 95000, 28000, 45000, 120000, 
+  60000, 42000, 71074, 70000, 56526, 75000, 42155, 35000, 65000, 110000, 
+  65000, 70000, 50000, 95000, 60000, 34189, 50000, 25000, 55000, 71074, 
+  56266, 80000, 40000, 70000, 35000, 35000, 44000, 19500, 50000, 120000, 
+  55000, 75000, 28500, 33945, 40000, 40000, 65000, 75000, 70000, 85000, 
+  35000, 67000, 60000)
+
 vanrath.data <- "/home/owen/Code/DigitalStrategyNI/analysis/data/jobSpecs.json" %>%
   jsonlite::read_json()
 
-minWages <- maxWages <- languages <- c()
+minWages <- maxWages <- 
+  languages <- technologies <- c()
 for (role in vanrath.data) {
   if (length(role$languages) > 0) {
     languages %<>% append(role$languages)
+    technologies %<>% append(role$technologies)
   }
   if (length(role$wage) > 1 && 
       role$contractType == "Permanent") {
@@ -28,25 +40,30 @@ minRange <- "Minimum" %>%
   rep(length(minWages))
 
 maxRange <- "Maximum" %>% 
-  rep(length(maxWages))
+  rep(length(c(maxWages, LONDON_WAGES)))
 
 data.frame(
-  wage = maxWages  ,
+  wage = c(maxWages, LONDON_WAGES),
   type = maxRange, 
+  location = c(
+    "Belfast" %>%
+      rep(length(maxWages)),
+    "London" %>%
+      rep(length(LONDON_WAGES))),
   stringsAsFactors = FALSE) %>% 
   subset(wage > 1000) %>%
   ggplot() + 
   geom_density(
     mapping = aes(
       x = wage, 
-      fill = type), 
+      fill = location), 
     alpha = 0.5, 
-    size = 0.3) + 
+    size = 0.3) +
   xlab("Salary (£)") + 
   ylab("Density") + 
   labs(
     title = "Salary distribution for permanent IT professionals, April 2019",
-    subtitle = "Wage analysis of 521 jobs") +
+    subtitle = paste0("Wage analysis of ", length(wage)," jobs")) +
   theme_minimal() + 
   ggthemes::scale_fill_ptol() +
   theme(
@@ -56,10 +73,17 @@ data.frame(
 languages %<>% 
   purrr::flatten_chr()
 
+technologies %<>% 
+  purrr::flatten_chr()
+
 languageTable <- languages %>% 
   table() %>% 
   as.data.frame() %>%
-  subset(Freq > 30)
+  subset(Freq > 10)
+
+technologiesTable <- technologies %>% 
+  table() %>% 
+  as.data.frame()
 
 languageTable %>%
   ggplot() + 
@@ -75,7 +99,27 @@ languageTable %>%
   xlab("") +
   ylab("Count") + 
   labs(
-    title = "Number of IT vacancies by programming language & technology, April 2019") +
+    title = "Number of IT vacancies by programming language, April 2019") +
+  theme_minimal() + 
+  ggthemes::scale_fill_ptol() +
+  theme(
+    legend.position = "none")
+
+technologiesTable %>%
+  ggplot() + 
+  geom_bar(
+    mapping = aes(
+      y = Freq,
+      x = .), 
+    stat = "identity",
+    fill = "blue",
+    colour = "black",
+    size = 0.3,
+    alpha = 0.5) + 
+  xlab("") +
+  ylab("Count") + 
+  labs(
+    title = "Number of IT vacancies by technology, April 2019") +
   theme_minimal() + 
   ggthemes::scale_fill_ptol() +
   theme(
@@ -112,7 +156,7 @@ for (t in language.df$language %>% unique()) {
   language.data <- language.df %>% 
     subset(language == t)
   language.data$mean <- faveMean <- as.integer(language.data$langMax %>% 
-                                             mean())
+         mean())
   stripped.language.df %<>% 
     rbind(language.data)
 }
