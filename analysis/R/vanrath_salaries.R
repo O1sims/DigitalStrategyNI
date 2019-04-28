@@ -14,7 +14,7 @@ LONDON_WAGES <- c(
   65000, 70000, 50000, 95000, 60000, 34189, 50000, 25000, 55000, 71074, 
   56266, 80000, 40000, 70000, 35000, 35000, 44000, 19500, 50000, 120000, 
   55000, 75000, 28500, 33945, 40000, 40000, 65000, 75000, 70000, 85000, 
-  35000, 67000, 60000)
+  35000, 67000, 60000) # Collected from HAYS London
 
 vanrath.data <- "/home/owen/Code/DigitalStrategyNI/analysis/data/jobSpecs.json" %>%
   jsonlite::read_json()
@@ -63,14 +63,14 @@ data.frame(
   ylab("Density") + 
   labs(
     title = "Salary distribution for permanent IT professionals, April 2019",
-    subtitle = paste0("Wage analysis of ", length(wage)," jobs")) +
+    subtitle = "Salaries scraped from Belfast & London-based recruiter websites") +
   theme_minimal() + 
-  ggthemes::scale_fill_ptol() +
+  ggthemes::scale_fill_ptol("") +
   theme(
-    legend.position = "none")
+    legend.position = "bottom")
 
 
-languages %<>% 
+  languages %<>% 
   purrr::flatten_chr()
 
 technologies %<>% 
