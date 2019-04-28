@@ -1,16 +1,17 @@
 library(ggplot2)
 library(ggthemes)
+library(magrittr)
 
 
 year <- seq(
-  from = 2006, 
+  from = 2007, 
   to = 2018)
 
 totalLeavingPercent <- c(
-  35, 33.99, 32.91, 31.63, 34.62, 37.35, 32.08, 31.23, 31.82, 36.51, 36.01, 35.5, 38)
+  33.99, 32.91, 31.63, 34.62, 37.35, 32.08, 31.23, 31.82, 36.51, 36.01, 35.5, 38)
 
 ictLeavingPercent <- c(
-  28, 26.13, 29.36, 32.11, 28.18, 31.45, 33.54, 32.35, 33.45, 34.06, 37.45, 38.93, 40.03) + 2
+  8.3, 12.5, 10.7, 9.5, 12.45, 15.54, 22.35, 20.45, 27.06, 28.45, 35.93, 42.03)
 
 df <- data.frame(
   year = year,
@@ -23,12 +24,12 @@ ggplot(data = df, aes(x = year)) +
   geom_line(aes(y = totalLeavingPercent, colour = "a")) + 
   geom_point(aes(y = ictLeavingPercent, colour = "b")) + 
   geom_line(aes(y = ictLeavingPercent, colour = "b")) + 
-  scale_y_continuous(limits = c(20, 50)) +
+  scale_y_continuous(limits = c(0, 50)) +
   xlab("Year") +
   ylab("Students leaving NI (%)") +
   scale_colour_discrete(
     name = " ",
-    labels = c("Average", "Computer Science")) +
+    labels = c("Average", "EEECS")) +
   theme_minimal() + 
   theme(legend.position = "bottom")
 
