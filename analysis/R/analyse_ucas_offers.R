@@ -303,10 +303,6 @@ where_students_go <- function(ucasApplicationData, fromYear, domicile) {
     coord_flip() +
     ylab("") +
     xlab("") +
-    labs(
-      title = "Change in the number of acceptances by NI Universities (by broad subject area), " %>% 
-        paste0(fromYear, "-", (subjectYear %>% max())), 
-      caption = "Source: UCAS") +
     theme_minimal() +
     theme(
       legend.position = "none")
@@ -324,5 +320,5 @@ where_students_go <- function(ucasApplicationData, fromYear, domicile) {
 
 where_students_go(
   ucasApplicationData = ucas_applicants,
-  fromYear = 2014,
+  fromYear = 2013,
   domicile = "'Northern Ireland'")

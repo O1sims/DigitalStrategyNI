@@ -69,8 +69,7 @@ data.frame(
   theme(
     legend.position = "bottom")
 
-
-  languages %<>% 
+languages %<>% 
   purrr::flatten_chr()
 
 technologies %<>% 
@@ -226,3 +225,14 @@ G %>%
     edge.width = network.df$V1 %>% 
       log())
 
+
+
+
+# Check is degrees are needed
+
+degrees <- 0
+for (role in vanrath.data) {
+  if (agrepl("years experience", role$details$description, ignore.case = TRUE)) {
+    degrees <- degrees + 1
+  }
+}

@@ -141,7 +141,7 @@ total_investment_over_time <- function(INIData, SICSector = NA) {
     geom_bar(
       aes(
         x = `Financial Year Offer Made`, 
-        y = `Total Investment (Includes Invest NI Assistance)` / 1000000,
+        y = `Total Assistance Offered by Invest NI` / 1000000,
         fill = `Ownership when the offer was made`), 
       stat = "identity") +
     xlab(label = "") + 
